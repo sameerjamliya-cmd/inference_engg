@@ -57,8 +57,8 @@ not treat them as black boxes.
 ```
 inference-engine/
 ├── CLAUDE.md                     <- this file
-├── 01_bpe_tokenizer/             <- IN PROGRESS, build this with me now
-├── 02_tiny_gpt/                  <- blocked until 01 is genuinely done
+├── 01_bpe_tokenizer/             <- DONE
+├── 02_tiny_gpt/                  <- IN PROGRESS, build this with me now
 ├── 03_sdpa/
 ├── 04_flash_attention/
 ├── 05_attention_profiling/
@@ -84,14 +84,25 @@ inference-engine/
 
 ## Progress log
 
-- [ ] **01 — BPE Tokenizer from scratch. (IN PROGRESS — current focus)**
-  I understand the math/algorithm conceptually (counted pair frequencies,
-  pick global max-frequency pair, merge every occurrence, repeat, recount
-  from scratch each round — NOT a single left-to-right pass). I have NOT
-  yet built or run this myself. Do not skip ahead to Project 02 until I
-  say this one is actually done by me, in my own editor, understood
-  end-to-end.
-- [ ] 02 — Tiny GPT + autoregressive decoder loop (blocked until 01 is done)
+- [x] **01 — BPE Tokenizer from scratch. DONE.**
+  Built and run incrementally, piece by piece: byte encoding, pair-frequency
+  counting, argmax pair selection, merge/rewrite, the training loop
+  (recounting from scratch each round), encode() respecting learned merge
+  priority order, and decode(). Verified with roundtrip tests on a tiny
+  hand-checked example, synthetic prose, out-of-distribution unicode/emoji
+  text, and a real ~2.4MB English word-list corpus (correctness held at
+  every scale; compression improved with corpus/merge-budget size).
+- [ ] **02 — Tiny GPT + autoregressive decoder loop. (IN PROGRESS — current focus)**
+  Understand the math conceptually (embedding + positional embedding ->
+  transformer block stack -> last-position logits -> softmax -> sample ->
+  append -> repeat), and why naive generation wastefully recomputes
+  attention for every earlier token every step (motivates Project 10's KV
+  cache). Building incrementally: embeddings, then attention (only after a
+  dedicated Q/K/V discussion), MLP, one full transformer block, stacking
+  into a model class, sampling functions, the naive generation loop, and a
+  latency-vs-length benchmark. Weights are randomly initialized —
+  mechanics of the forward pass and generation loop are the point, not
+  coherent text.
 - [ ] 03 — Scaled dot-product attention from scratch
 - [ ] 04 — Simplified Flash Attention
 - [ ] 05 — Attention memory/perf profiling
